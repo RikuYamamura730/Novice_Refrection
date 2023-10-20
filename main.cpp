@@ -20,13 +20,15 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		int degree = 0;
 	};
 
+	int texHandle = Novice::LoadTexture("./daihuku1.png");
+
 	const float kPlayerSpeed = 5.0f;
 
 	Object player;
 	player.pos = {300.0f, 300.0f};
 	player.speed = {
 	    cosf(ToRadian(player.degree)) * kPlayerSpeed, sinf(ToRadian(player.degree)) * kPlayerSpeed};
-	player.radius = {16.0f, 16.0f};
+	player.radius = {32.0f, 32.0f};
 
 	Vector2 circlePos = {0};
 
@@ -110,7 +112,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 #pragma region 敵
 
 		float dist = VectorMagnitude(Sub(player.pos, enemy.pos));
-		int r = (int)((player.radius.x + enemy.radius.x));
+		int r = (int)((player.radius.x - 8 + enemy.radius.x));
 		if (!isDelay) {
 			if (dist <= r) {
 				Vector2 contact = Sub(player.pos, enemy.pos);
@@ -118,12 +120,14 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 				contact = Add(enemy.pos, contact);
 
 				player.degree = ToDegree(CalculateAngle(contact, player.speed));
-				
+
+				Vector2 offsetRadius = Sub(player.radius, {8.0f, 8.0f});
+
 				Vector2 offset =
-				    Mul(Normalize(Sub(player.pos, contact)), Add(player.radius, {2.0f, 2.0f}));
+				    Mul(Normalize(Sub(player.pos, contact)), Add(offsetRadius, {1.0f, 1.0f}));
 				// プレイヤー押し戻す
 				player.pos = Add(contact, offset);
-				
+
 				player.speed = {
 				    cosf(ToRadian(player.degree) * kPlayerSpeed),
 				    sinf(ToRadian(player.degree) * kPlayerSpeed),
@@ -134,7 +138,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 				    player.speed.x * kPlayerSpeed,
 				    player.speed.y * kPlayerSpeed,
 				};
-
 
 				isDelay = true;
 			}
@@ -154,10 +157,17 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		///
 		/// ↓描画処理ここから
 		///
+		
+// デバッグ
+#ifdef _DEBUG
 
 		Novice::DrawEllipse(
 		    (int)player.pos.x, (int)player.pos.y, (int)player.radius.x, (int)player.radius.y, 0.0f,
 		    WHITE, kFillModeSolid);
+
+#endif
+		Novice::DrawSprite(
+		    (int)player.pos.x - 32, (int)player.pos.y - 32, texHandle, 1.0f, 1.0f, 0.0f, WHITE);
 
 		Novice::DrawEllipse(
 		    (int)circlePos.x, (int)circlePos.y, (int)8, (int)8, 0.0f, RED, kFillModeSolid);
